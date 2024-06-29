@@ -23,7 +23,8 @@ from src.utils import *
 
 DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
 
-comp_count = DBmng.get_all_vacancies()
+zzz = DBmng.get_avg_salary()
+print(zzz)
 
 # for cn, cc in comp_count.items():
 #     print(f'Компания: {cn}\nКоличество вакансий:{cc}\n')

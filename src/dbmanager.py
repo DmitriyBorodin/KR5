@@ -86,12 +86,66 @@ class DBManager:
 
         return all_vac_list_tuples
 
-
     def get_avg_salary(self):
-        pass
+        conn = psycopg2.connect(host=self.host, database=self.database,
+                                user=self.user, password=self.__password)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT AVG(pay)
+                        FROM vacancies
+                        WHERE pay <> 0 AND pay_currency = 'RUR'
+                        """)
+                    avg_pay = cur.fetchone()
+
+                    # for vac in all_vac_list_tuples:
+                    #     print(vac)
+
+        finally:
+            conn.close()
+
+        return round(avg_pay[0])
 
     def get_vacancies_with_higher_salary(self):
-        pass
+        conn = psycopg2.connect(host=self.host, database=self.database,
+                                user=self.user, password=self.__password)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT company_name, vac_name, pay, pay_currency, vac_link
+                        FROM vacancies
+                        """)
+                    all_vac_list_tuples = cur.fetchall()
+
+                    # for vac in all_vac_list_tuples:
+                    #     print(vac)
+
+        finally:
+            conn.close()
+
+        return all_vac_list_tuples
 
     def get_vacancies_with_keyword(self):
-        pass
+        conn = psycopg2.connect(host=self.host, database=self.database,
+                                user=self.user, password=self.__password)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT company_name, vac_name, pay, pay_currency, vac_link
+                        FROM vacancies
+                        """)
+                    all_vac_list_tuples = cur.fetchall()
+
+                    # for vac in all_vac_list_tuples:
+                    #     print(vac)
+
+        finally:
+            conn.close()
+
+        return all_vac_list_tuples
