@@ -1,11 +1,15 @@
 import requests
 import json
 import time
+import psycopg2
 
 
 def get_vacancies():
+    """
+    Получаем список компаний, парсим вакансий каждой компании в отдельный файл
+    """
 
-    # Получаем список компаний, вакансии которых будем парсить
+    # Получаем список компаний
     with open("data/companies.json", "r", encoding="utf-8") as file:
         companies = json.load(file)
 
@@ -35,3 +39,35 @@ def get_vacancies():
 
             # Таймаут чтобы не превырашать лимит запросов (просит каптчу, если превысить)
             time.sleep(5)
+
+
+def create_vacancies_table():
+    """
+    Пересоздаёт таблицу vacancies
+    """
+    conn = psycopg2.connect(host='localhost', database='HHVac', user='postgres',
+                            password='121212')
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute('DROP TABLE IF EXISTS vacancies')
+                cur.execute("""
+                            CREATE TABLE vacancies
+                            (
+                                vac_id serial,
+                                company_name varchar(50) NOT NULL,
+                                vac_name varchar(255) NOT NULL,
+                                pay varchar(255),
+                                pay_currency varchar(10),
+                                city varchar(50) NOT NULL,
+                                vac_link varchar(255) NOT NULL,
+                                hh_vac_id varchar(9) NOT NULL,
+                                description varchar(255) NOT NULL,
+                                
+                                CONSTRAINT pk_vacancies_vac_id PRIMARY KEY(vac_id)
+                            );
+                            """)
+                # cur.execute('INSERT INTO user_account VALUES (%s, %s)', (6, 'Bruh'))
+                # cur.execute('SELECT * FROM user_account')
+    finally:
+        conn.close()
