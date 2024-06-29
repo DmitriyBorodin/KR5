@@ -75,6 +75,7 @@ class DBManager:
                         """
                         SELECT company_name, vac_name, pay, pay_currency, vac_link
                         FROM vacancies
+                        ORDER BY pay
                         """)
                     all_vac_list_tuples = cur.fetchall()
 
@@ -100,9 +101,6 @@ class DBManager:
                         """)
                     avg_pay = cur.fetchone()
 
-                    # for vac in all_vac_list_tuples:
-                    #     print(vac)
-
         finally:
             conn.close()
 
@@ -114,20 +112,20 @@ class DBManager:
         try:
             with conn:
                 with conn.cursor() as cur:
-                    cur.execute(
-                        """
-                        SELECT company_name, vac_name, pay, pay_currency, vac_link
-                        FROM vacancies
-                        """)
-                    all_vac_list_tuples = cur.fetchall()
 
-                    # for vac in all_vac_list_tuples:
-                    #     print(vac)
+                    avg_pay = self.get_avg_salary()
+
+                    cur.execute(
+                        f"""
+                        SELECT company_name, vac_name, pay, pay_currency, vac_link
+                        FROM vacancies WHERE pay > {avg_pay}
+                        """)
+                    higher_pay_vac_list_tuples = cur.fetchall()
 
         finally:
             conn.close()
 
-        return all_vac_list_tuples
+        return higher_pay_vac_list_tuples
 
     def get_vacancies_with_keyword(self):
         conn = psycopg2.connect(host=self.host, database=self.database,
@@ -140,12 +138,8 @@ class DBManager:
                         SELECT company_name, vac_name, pay, pay_currency, vac_link
                         FROM vacancies
                         """)
-                    all_vac_list_tuples = cur.fetchall()
-
-                    # for vac in all_vac_list_tuples:
-                    #     print(vac)
-
+                    asd = cur.fetchall()
         finally:
             conn.close()
 
-        return all_vac_list_tuples
+        return asd
