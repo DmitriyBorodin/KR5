@@ -23,7 +23,7 @@ from src.utils import *
 
 DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
 
-zzz = DBmng.get_vacancies_with_higher_salary()
+zzz = DBmng.get_vacancies_with_keyword('Python', True)
 print(zzz)
 
 for vac in zzz:

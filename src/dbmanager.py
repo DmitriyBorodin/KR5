@@ -88,6 +88,9 @@ class DBManager:
         return all_vac_list_tuples
 
     def get_avg_salary(self):
+        """
+        Возвращает среднюю зарплату среди вакансий с ненулевой зп в рублях
+        """
         conn = psycopg2.connect(host=self.host, database=self.database,
                                 user=self.user, password=self.__password)
         try:
@@ -107,6 +110,9 @@ class DBManager:
         return round(avg_pay[0])
 
     def get_vacancies_with_higher_salary(self):
+        """
+        Возвращает вакансии с зарплатой больше средней по всем вакансиям
+        """
         conn = psycopg2.connect(host=self.host, database=self.database,
                                 user=self.user, password=self.__password)
         try:
@@ -127,19 +133,36 @@ class DBManager:
 
         return higher_pay_vac_list_tuples
 
-    def get_vacancies_with_keyword(self):
+    def get_vacancies_with_keyword(self, keyword, is_fuzzy=False):
+        """
+        Возвращает список вакансий, в названии которых есть ключевое слово
+        Опионально можно подключить поиск и по требованиям+обязанностям (параметр is_fuzzy)
+        """
         conn = psycopg2.connect(host=self.host, database=self.database,
                                 user=self.user, password=self.__password)
         try:
             with conn:
                 with conn.cursor() as cur:
-                    cur.execute(
-                        """
-                        SELECT company_name, vac_name, pay, pay_currency, vac_link
+                    if is_fuzzy:
+                        cur.execute(
+                        f"""
+                        SELECT *
                         FROM vacancies
+                        WHERE LOWER(vac_name) LIKE '%{keyword.lower()}%' 
+                        OR LOWER(requirement) LIKE '%{keyword.lower()}%' 
+                        OR LOWER(responsibility) LIKE '%{keyword.lower()}%'
                         """)
-                    asd = cur.fetchall()
+                    else:
+                        cur.execute(
+                        f"""
+                        SELECT *
+                        FROM vacancies
+                        WHERE LOWER(vac_name) LIKE '%{keyword.lower()}%'
+                        """)
+
+                    vac_list = cur.fetchall()
+                    print(vac_list)
         finally:
             conn.close()
 
-        return asd
+        return vac_list
