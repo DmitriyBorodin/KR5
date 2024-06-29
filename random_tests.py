@@ -16,8 +16,8 @@ from src.utils import *
 
 
 get_vacancies()
-create_vacancies_table()
-fill_vacancies_table()
+# create_vacancies_table()
+# fill_vacancies_table()
 
 
 

@@ -52,6 +52,7 @@ def create_vacancies_table():
         with conn:
             with conn.cursor() as cur:
                 cur.execute('DROP TABLE IF EXISTS vacancies')
+                # !!!
                 cur.execute("""
                             CREATE TABLE vacancies
                             (
