@@ -51,15 +51,13 @@ def create_vacancies_table():
     try:
         with conn:
             with conn.cursor() as cur:
-                cur.execute('DROP TABLE IF EXISTS vacancies')
-                # !!!
                 cur.execute("""
-                            CREATE TABLE vacancies
+                            CREATE TABLE IF NOT EXISTS vacancies
                             (
                                 vac_id serial,
                                 company_name varchar(50) NOT NULL,
                                 vac_name varchar(255) NOT NULL,
-                                pay varchar(255),
+                                pay int,
                                 pay_currency varchar(10),
                                 city varchar(50) NOT NULL,
                                 vac_link varchar(255) NOT NULL,
@@ -71,8 +69,6 @@ def create_vacancies_table():
                                 CONSTRAINT pk_vacancies_vac_id PRIMARY KEY(vac_id)
                             );
                             """)
-                # cur.execute('INSERT INTO user_account VALUES (%s, %s)', (6, 'Bruh'))
-                # cur.execute('SELECT * FROM user_account')
                 conn.commit()
     finally:
         conn.close()
@@ -106,31 +102,21 @@ def fill_vacancies_table():
                             for vacancy in vac_list:
                                 vac_params = [company_name]
                                 vac_params.extend(get_vac_params(vacancy))
-                                vac_params = [str(param) for param in
-                                              vac_params]
-                                # print(vac_params)
+                                # vac_params = [str(param) for param in vac_params]
+                                print(vac_params)
                                 # for p in vac_params:
                                 #     print(p)
                                 company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule = [*vac_params]
                                 cur.execute('INSERT INTO vacancies (company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule)'
                                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', [*vac_params])
                                 conn.commit()
-
-
-
-
-
-
-
-
-
     finally:
         conn.close()
 
 
 def get_vac_params(vacancy):
     """
-
+    Принимает вакансию и возвращает набор её параметров
     """
 
     vac_name = vacancy['name']
@@ -152,16 +138,20 @@ def get_vac_params(vacancy):
     hh_vac_id = vacancy['id']
 
     try:
-        requirement = vacancy['snippet'][
-            'requirement']
+        if vacancy['snippet']['requirement'] is None:
+            requirement = 'Нет списка требований'
+        else:
+            requirement = vacancy['snippet']['requirement']
     except KeyError:
         requirement = 'Нет списка требований'
 
     try:
-        responsibility = vacancy['snippet'][
-            'responsibility']
+        if vacancy['snippet']['responsibility'] is None:
+            responsibility = 'Нет описания'
+        else:
+            responsibility = vacancy['snippet']['responsibility']
     except KeyError:
-        description = 'Нет описания'
+        responsibility = 'Нет описания'
 
     schedule = vacancy['schedule']['name']
 

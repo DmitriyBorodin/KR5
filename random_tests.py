@@ -1,5 +1,7 @@
 import json
 import os
+
+from src.dbmanager import DBManager
 from src.utils import *
 
 
@@ -15,9 +17,16 @@ from src.utils import *
 
 
 
-get_vacancies()
+# get_vacancies()
 # create_vacancies_table()
 # fill_vacancies_table()
+
+DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
+
+comp_count = DBmng.get_companies_and_vacancies_count()
+
+for cn, cc in comp_count.items():
+    print(f'Компания: {cn}\nКоличество вакансий:{cc}\n')
 
 
 
