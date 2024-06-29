@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import psycopg2
+import os
 
 
 def get_vacancies():
@@ -62,12 +63,108 @@ def create_vacancies_table():
                                 city varchar(50) NOT NULL,
                                 vac_link varchar(255) NOT NULL,
                                 hh_vac_id varchar(9) NOT NULL,
-                                description varchar(255) NOT NULL,
+                                requirement varchar(255) NOT NULL,
+                                responsibility varchar(255) NOT NULL,
+                                schedule varchar(255),
                                 
                                 CONSTRAINT pk_vacancies_vac_id PRIMARY KEY(vac_id)
                             );
                             """)
                 # cur.execute('INSERT INTO user_account VALUES (%s, %s)', (6, 'Bruh'))
                 # cur.execute('SELECT * FROM user_account')
+                conn.commit()
     finally:
         conn.close()
+
+
+def fill_vacancies_table():
+    """
+    Наполняет таблицу вакансиями
+    """
+
+    conn = psycopg2.connect(host='localhost', database='HHVac', user='postgres',
+                            password='121212')
+    try:
+        with (conn):
+            with conn.cursor() as cur:
+
+                directory = os.fsencode("data")
+
+                for vac_comp_file in os.listdir(directory):
+
+                    filename = os.fsdecode(vac_comp_file)
+
+                    if filename != "companies.json":
+                        company_name = filename[:-15]
+                        with open(f"data/{filename}", encoding='utf-8') as file:
+                            data = file.read()
+                            vac_list = json.loads(data)
+                            # print(data)
+                            # print(filename)
+                            # time.sleep(3)
+                            for vacancy in vac_list:
+                                vac_params = [company_name]
+                                vac_params.extend(get_vac_params(vacancy))
+                                vac_params = [str(param) for param in
+                                              vac_params]
+                                # print(vac_params)
+                                # for p in vac_params:
+                                #     print(p)
+                                company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule = [*vac_params]
+                                cur.execute('INSERT INTO vacancies (company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule)'
+                                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', [*vac_params])
+                                conn.commit()
+
+
+
+
+
+
+
+
+
+    finally:
+        conn.close()
+
+
+def get_vac_params(vacancy):
+    """
+
+    """
+
+    vac_name = vacancy['name']
+
+    pay = 0
+    if not vacancy.get('salary'):
+        pay = 0
+    elif vacancy['salary']['to']:
+        pay = int(vacancy['salary']['to'])
+
+    pay_currency = 'Не указана'
+    if vacancy.get('salary'):
+        pay_currency = vacancy['salary']['currency']
+
+    city = vacancy['area']['name']
+
+    vac_link = vacancy['alternate_url']
+
+    hh_vac_id = vacancy['id']
+
+    try:
+        requirement = vacancy['snippet'][
+            'requirement']
+    except KeyError:
+        requirement = 'Нет списка требований'
+
+    try:
+        responsibility = vacancy['snippet'][
+            'responsibility']
+    except KeyError:
+        description = 'Нет описания'
+
+    schedule = vacancy['schedule']['name']
+
+    return vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule
+
+
+

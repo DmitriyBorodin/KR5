@@ -1,4 +1,5 @@
 import json
+import os
 from src.utils import *
 
 
@@ -14,11 +15,22 @@ from src.utils import *
 
 
 
+get_vacancies()
+create_vacancies_table()
+fill_vacancies_table()
+
 
 
 # get_vacancies()
 
-create_table()
+# directory = os.fsencode("data")
+#
+# for file in os.listdir(directory):
+#     filename = os.fsdecode(file)
+#     if filename != "companies.json":
+#         print(filename[:-15])
+#         continue
+
 
 
 
