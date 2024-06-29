@@ -53,6 +53,7 @@ class DBManager:
                         company_count = cur.fetchone()
                         companies_count[company_name] = company_count[0]
                         # print(companies_count)
+
         finally:
             conn.close()
 
@@ -62,7 +63,29 @@ class DBManager:
         return companies_count
 
     def get_all_vacancies(self):
-        pass
+        """
+        названия компании, названия вакансии и зарплаты и ссылки на ваканси
+        """
+        conn = psycopg2.connect(host=self.host, database=self.database,
+                                user=self.user, password=self.__password)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT company_name, vac_name, pay, pay_currency, vac_link
+                        FROM vacancies
+                        """)
+                    all_vac_list_tuples = cur.fetchall()
+
+                    # for vac in all_vac_list_tuples:
+                    #     print(vac)
+
+        finally:
+            conn.close()
+
+        return all_vac_list_tuples
+
 
     def get_avg_salary(self):
         pass

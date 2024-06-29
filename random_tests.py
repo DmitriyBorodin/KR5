@@ -23,10 +23,10 @@ from src.utils import *
 
 DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
 
-comp_count = DBmng.get_companies_and_vacancies_count()
+comp_count = DBmng.get_all_vacancies()
 
-for cn, cc in comp_count.items():
-    print(f'Компания: {cn}\nКоличество вакансий:{cc}\n')
+# for cn, cc in comp_count.items():
+#     print(f'Компания: {cn}\nКоличество вакансий:{cc}\n')
 
 
 
