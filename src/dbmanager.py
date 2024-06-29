@@ -109,22 +109,26 @@ class DBManager:
 
         return round(avg_pay[0])
 
-    def get_vacancies_with_higher_salary(self):
+    def get_vacancies_with_higher_salary(self, num_of_vacs=None):
         """
         Возвращает вакансии с зарплатой больше средней по всем вакансиям
         """
         conn = psycopg2.connect(host=self.host, database=self.database,
                                 user=self.user, password=self.__password)
+
+        if not num_of_vacs:
+            num_of_vacs = 9999
+
         try:
             with conn:
                 with conn.cursor() as cur:
-
                     avg_pay = self.get_avg_salary()
 
                     cur.execute(
                         f"""
                         SELECT company_name, vac_name, pay, pay_currency, vac_link
                         FROM vacancies WHERE pay > {avg_pay}
+                        LIMIT {num_of_vacs}
                         """)
                     higher_pay_vac_list_tuples = cur.fetchall()
 
@@ -145,7 +149,7 @@ class DBManager:
                 with conn.cursor() as cur:
                     if is_fuzzy:
                         cur.execute(
-                        f"""
+                            f"""
                         SELECT *
                         FROM vacancies
                         WHERE LOWER(vac_name) LIKE '%{keyword.lower()}%' 
@@ -154,7 +158,7 @@ class DBManager:
                         """)
                     else:
                         cur.execute(
-                        f"""
+                            f"""
                         SELECT *
                         FROM vacancies
                         WHERE LOWER(vac_name) LIKE '%{keyword.lower()}%'
@@ -166,3 +170,29 @@ class DBManager:
             conn.close()
 
         return vac_list
+
+    def get_some_stats(self):
+        conn = psycopg2.connect(host=self.host, database=self.database,
+                                user=self.user, password=self.__password)
+        try:
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        f"""
+                        SELECT COUNT(*)
+                        FROM vacancies
+                        WHERE pay <> 0
+                        """)
+                    total_vac_w_pay = cur.fetchone()
+
+                    cur.execute(
+                        f"""
+                        SELECT COUNT(*)
+                        FROM vacancies
+                        WHERE pay > 86000
+                        """)
+                    total_vac_with_higher_pay = cur.fetchone()
+        finally:
+            conn.close()
+
+        return total_vac_w_pay[0], total_vac_with_higher_pay[0]

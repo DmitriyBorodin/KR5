@@ -3,7 +3,7 @@ import json
 import time
 import psycopg2
 import os
-
+from tqdm import tqdm
 
 def get_vacancies():
     """
@@ -16,12 +16,11 @@ def get_vacancies():
 
     # Записываем вакансии компаний в отдельные json файлы
     for company_name, company_id in companies.items():
-        print(f"Парсим вакансии по компании: {company_name}")
 
         with open(f"data/{company_name}_vacancies.json", "w", encoding="utf-8") as file:
 
             company_vacancies = []
-            for page in range(20):
+            for page in tqdm(range(20), desc=f'Парсим вакансии {company_name}', unit='вакансии', ncols=80, bar_format= "{l_bar}{bar} {n_fmt}/{total_fmt}", colour="green"):
                 data = (requests.get(
                     f"https://api.hh.ru/vacancies?employer_id={company_id}&area=113&per_page=100&page={page}")).json()
 
@@ -33,13 +32,14 @@ def get_vacancies():
                     print(error)
                     continue
 
-                print(f"Страница = {page}")
+                # print(f"Страница = {page}")
 
             json.dump(company_vacancies, file, sort_keys=False, indent=4,
                       ensure_ascii=False)
 
             # Таймаут чтобы не превырашать лимит запросов (просит каптчу, если превысить)
-            time.sleep(5)
+            if company_name != 'СИБУР':
+                time.sleep(4)
 
 
 def create_vacancies_table():
@@ -103,7 +103,7 @@ def fill_vacancies_table():
                                 vac_params = [company_name]
                                 vac_params.extend(get_vac_params(vacancy))
                                 # vac_params = [str(param) for param in vac_params]
-                                print(vac_params)
+                                # print(vac_params)
                                 # for p in vac_params:
                                 #     print(p)
                                 company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule = [*vac_params]
