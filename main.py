@@ -57,20 +57,19 @@ def main():
                 user_input = input('Введите количество вакансий для отображения\n'
                                    'Если оставить пустым - покажу все вакансии\n')
                 try:
-                    num_of_vacs = str(user_input)
+                    num_of_vacs = int(user_input)
                     higher_salary_vacancies = dbmng.get_vacancies_with_higher_salary(num_of_vacs)
                     for vac in higher_salary_vacancies:
                         print(vac)
                     print('')
                     break
-                except ValueError as e:
-                    print(e)
-                break
+                except ValueError:
+                    print('Не похоже на цифру..')
             elif int(user_input) == 2:
                 print('')
                 break
-        except ValueError as e:
-            print(e)
+        except ValueError:
+            print('Это было не "1 или 2"...\nДавай попробуем ещё раз')
 
     # Вывод вакансий по keyword
     while True:
@@ -79,15 +78,19 @@ def main():
             if user_input in ('stop', 'стоп'):
                 print('Завершаю работу')
                 exit()
-            elif not user_input.isalpha():
-                print('В качестве ответа принимается только слова')
+            if not user_input.strip():
+                print('Пожалуйста, введите ключевое слово')
+                continue
+            if not user_input.isalpha():
+                print('В качестве ключевого слова принимается только слова')
             else:
                 keyword_vacs = dbmng.get_vacancies_with_keyword(user_input)
                 if not keyword_vacs:
                     print('По этому запросу нет вакансий')
-                for vac in keyword_vacs:
-                    print(vac)
-                print(f'Это конец списка вакансий по запросу "{user_input}"')
+                else:
+                    for vac in keyword_vacs:
+                        print(vac)
+                    print(f'Это конец списка вакансий по запросу "{user_input}"')
                 break
         except ValueError as e:
             print(e)
@@ -95,7 +98,7 @@ def main():
     # Выводим все вакансии подряд в терминал (опционально)
     while True:
         user_input = input(
-            'А хотите вывести на экран вообще все вакансии подряд? Введите 1 или 2\n'
+            '\nА хотите вывести на экран вообще все вакансии подряд? Введите 1 или 2\n'
             '1 - Да, давай всё на экран\n'
             '2 - Не надо, пожалуйста\n')
         try:

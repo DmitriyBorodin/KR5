@@ -165,7 +165,7 @@ class DBManager:
                         """)
 
                     vac_list = cur.fetchall()
-                    print(vac_list)
+                    # print(vac_list)
         finally:
             conn.close()
 
