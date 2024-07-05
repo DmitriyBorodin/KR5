@@ -5,6 +5,7 @@ import psycopg2
 import os
 from tqdm import tqdm
 
+
 def get_vacancies():
     """
     Получаем список компаний, парсим вакансий каждой компании в отдельный файл
@@ -40,6 +41,22 @@ def get_vacancies():
             # Таймаут чтобы не превырашать лимит запросов (просит каптчу, если превысить)
             if company_name != 'СИБУР':
                 time.sleep(4)
+
+
+def create_database(dbname, params):
+    conn = psycopg2.connect(database='postgres', **params)
+    cur = conn.cursor()
+    conn.autocommit = True
+    try:
+        cur.execute(f"""
+        CREATE DATABASE {dbname}
+        """)
+        print(f'База данных {dbname} создана')
+        conn.commit()
+    except psycopg2.errors.DuplicateDatabase:
+        print(f'База данных {dbname} уже существует')
+    finally:
+        conn.close()
 
 
 def create_vacancies_table():
@@ -106,7 +123,7 @@ def fill_vacancies_table():
                                 # print(vac_params)
                                 # for p in vac_params:
                                 #     print(p)
-                                company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule = [*vac_params]
+                                # company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule = [*vac_params]
                                 cur.execute('INSERT INTO vacancies (company_name, vac_name, pay, pay_currency, city, vac_link, hh_vac_id, requirement, responsibility, schedule)'
                                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', [*vac_params])
                                 conn.commit()
