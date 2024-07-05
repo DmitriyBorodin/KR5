@@ -1,7 +1,9 @@
 import psycopg2
+from tabulate import tabulate
 
 
 class DBManager:
+    headers = ['Companym_name', 'Vacancy_name', 'pay', 'currency', 'vac_link']
 
     def __init__(self, db_name, params):
         self.db_name = db_name
@@ -59,17 +61,16 @@ class DBManager:
                         """
                         SELECT company_name, vac_name, pay, pay_currency, vac_link
                         FROM vacancies
-                        ORDER BY pay
+                        ORDER BY pay DESC
                         """)
                     all_vac_list_tuples = cur.fetchall()
 
-                    # for vac in all_vac_list_tuples:
-                    #     print(vac)
-
         finally:
             conn.close()
-
-        return all_vac_list_tuples
+        result = tabulate(all_vac_list_tuples,
+                          headers=DBManager.headers,
+                          tablefmt='psql')
+        return result
 
     def get_avg_salary(self):
         """
@@ -93,14 +94,11 @@ class DBManager:
 
         return round(avg_pay[0])
 
-    def get_vacancies_with_higher_salary(self, num_of_vacs=None):
+    def get_vacancies_with_higher_salary(self, num_of_vacs):
         """
         Возвращает вакансии с зарплатой больше средней по всем вакансиям
         """
         conn = psycopg2.connect(dbname=self.db_name, **self.params)
-
-        if not num_of_vacs:
-            num_of_vacs = 9999
 
         try:
             with conn:
@@ -111,14 +109,17 @@ class DBManager:
                         f"""
                         SELECT company_name, vac_name, pay, pay_currency, vac_link
                         FROM vacancies WHERE pay > {avg_pay}
-                        LIMIT {num_of_vacs}
                         """)
                     higher_pay_vac_list_tuples = cur.fetchall()
-
+                    sorted_list = sorted(higher_pay_vac_list_tuples,
+                                         key=lambda x: x[2], reverse=True)
         finally:
             conn.close()
 
-        return higher_pay_vac_list_tuples
+        result = tabulate(sorted_list[:num_of_vacs],
+                          headers=DBManager.headers,
+                          tablefmt='psql')
+        return result
 
     def get_vacancies_with_keyword(self, keyword, is_fuzzy=False):
         """
@@ -152,9 +153,13 @@ class DBManager:
         finally:
             conn.close()
 
-        return vac_list
+        result = tabulate(vac_list,
+                          headers=DBManager.headers,
+                          tablefmt='psql')
 
-    def get_some_stats(self):
+        return result
+
+    def get_some_stats(self, avg_pay):
         conn = psycopg2.connect(dbname=self.db_name, **self.params)
 
         try:
@@ -172,9 +177,8 @@ class DBManager:
                         f"""
                         SELECT COUNT(*)
                         FROM vacancies
-                        WHERE pay > 86000
-                        """) # !!! тут
-                    # tabulate
+                        WHERE pay > {avg_pay}
+                        """)
                     total_vac_with_higher_pay = cur.fetchone()
         finally:
             conn.close()

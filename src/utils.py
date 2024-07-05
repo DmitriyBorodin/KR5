@@ -43,28 +43,28 @@ def get_vacancies():
                 time.sleep(4)
 
 
-def create_database(dbname, params):
+def create_database(db_name, params):
     conn = psycopg2.connect(database='postgres', **params)
     cur = conn.cursor()
     conn.autocommit = True
     try:
         cur.execute(f"""
-        CREATE DATABASE {dbname}
+        CREATE DATABASE {db_name}
         """)
-        print(f'База данных {dbname} создана')
+        print(f'База данных {db_name} создана')
         conn.commit()
     except psycopg2.errors.DuplicateDatabase:
-        print(f'База данных {dbname} уже существует')
+        print(f'База данных {db_name} уже существует')
     finally:
         conn.close()
 
 
-def create_vacancies_table():
+def create_vacancies_table(db_name, params):
     """
     Пересоздаёт таблицу vacancies
     """
-    conn = psycopg2.connect(host='localhost', database='HHVac', user='postgres',
-                            password='121212')
+    conn = psycopg2.connect(database=db_name, **params)
+
     try:
         with conn:
             with conn.cursor() as cur:
@@ -91,13 +91,13 @@ def create_vacancies_table():
         conn.close()
 
 
-def fill_vacancies_table():
+def fill_vacancies_table(db_name, params):
     """
     Наполняет таблицу вакансиями
     """
 
-    conn = psycopg2.connect(host='localhost', database='HHVac', user='postgres',
-                            password='121212')
+    conn = psycopg2.connect(database=db_name, **params)
+
     try:
         with (conn):
             with conn.cursor() as cur:

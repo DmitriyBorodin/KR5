@@ -3,9 +3,9 @@ import os
 from tqdm import tqdm
 from src.dbmanager import DBManager
 from src.utils import *
+from config import config
 
-
-
+params = config()
 
 # with open("data/companies.json", "r", encoding="utf-8") as file:
 #     companies = json.load(file)
@@ -15,17 +15,18 @@ from src.utils import *
 #
 #     print(f"data/{company_name}_vacancies.json")
 
+create_database('testdb', params)
 
 
 # get_vacancies()
 # create_vacancies_table()
 # fill_vacancies_table()
 
-DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
+# DBmng = DBManager('localhost', 'HHVac', 'postgres','121212')
+# #
+# total, total_high = DBmng.get_some_stats()
 #
-total, total_high = DBmng.get_some_stats()
-
-print(total, total_high)
+# print(total, total_high)
 
 # zzz = DBmng.get_vacancies_with_keyword('Python', True)
 # print(zzz)
