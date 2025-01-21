@@ -72,11 +72,11 @@ def create_vacancies_table(db_name, params):
                             CREATE TABLE IF NOT EXISTS vacancies
                             (
                                 vac_id serial,
-                                company_name varchar(50) NOT NULL,
+                                company_name varchar(255) NOT NULL,
                                 vac_name varchar(255) NOT NULL,
                                 pay int,
                                 pay_currency varchar(10),
-                                city varchar(50) NOT NULL,
+                                city varchar(255) NOT NULL,
                                 vac_link varchar(255) NOT NULL,
                                 hh_vac_id varchar(9) NOT NULL,
                                 requirement varchar(255) NOT NULL,

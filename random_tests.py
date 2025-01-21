@@ -15,8 +15,8 @@ params = config()
 #
 #     print(f"data/{company_name}_vacancies.json")
 
-create_database('testdb', params)
-
+db_name = 'testfirst'
+create_vacancies_table(db_name, params)
 
 # get_vacancies()
 # create_vacancies_table()
